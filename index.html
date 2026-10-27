@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HISTOGRAM SHOWDOWN: ศึกพิชิตกราฟระทึก!</title>
+<style>
+:root{color-scheme:dark;--bg:#070a1f;--card:#111737;--tx:#eef2ff;--mut:#9fb0ff;--b:#00d4ff;--p:#a855f7;--y:#ffd60a;--g:#22ff99;--r:#ff4d6d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font-family:"Prompt","Noto Sans Thai","Sarabun",system-ui,sans-serif;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;top:-30vh;width:70vw;height:130vh;pointer-events:none;opacity:.22;filter:blur(30px);z-index:0}
+body::before{left:-15vw;background:conic-gradient(from 160deg at 50% 0,transparent,var(--b),transparent 25%);animation:sw 7s ease-in-out infinite alternate}
+body::after{right:-15vw;background:conic-gradient(from 200deg at 50% 0,transparent,var(--p),transparent 25%);animation:sw 9s ease-in-out infinite alternate-reverse}
+@keyframes sw{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+#app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:12px 16px 24px}
+h1,h2,h3{margin:0}
+.logo{font-size:clamp(28px,6vw,64px);font-weight:900;letter-spacing:2px;text-align:center;background:linear-gradient(90deg,var(--b),var(--p),var(--y));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px #a855f799)}
+.sub{text-align:center;color:var(--mut);font-size:clamp(15px,2.2vw,22px)}
+#hud{display:none;align-items:center;gap:12px;margin-bottom:8px}
+#hud .st{font-weight:800;color:var(--y);white-space:nowrap;font-size:clamp(14px,2vw,20px)}
+.pw{flex:1;height:16px;border-radius:9px;background:#1a2150;border:1px solid #ffffff33;overflow:hidden}
+.pw i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--b),var(--p),var(--y));box-shadow:0 0 12px var(--b);transition:width .6s}
+button{font:inherit;cursor:pointer;color:var(--tx)}
+.mute{background:#1a2150;border:1px solid #ffffff33;border-radius:10px;padding:6px 10px}
+#board{display:none;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.tc{flex:1;min-width:130px;background:var(--card);border:2px solid var(--c);border-radius:16px;padding:8px 12px;text-align:center;box-shadow:0 0 14px color-mix(in srgb,var(--c) 40%,transparent);transition:transform .3s,box-shadow .3s}
+.tc.act{transform:scale(1.05);box-shadow:0 0 28px var(--c)}
+.tc .n{font-size:clamp(13px,1.8vw,18px);font-weight:700;color:var(--c)}
+.tc .s{font-size:clamp(30px,5vw,58px);font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums;text-shadow:0 0 14px var(--c)}
+.tc.pop .s{animation:pop .5s}
+@keyframes pop{40%{transform:scale(1.35);color:var(--y)}}
+#mc{min-height:34px;text-align:center;font-size:clamp(16px,2.6vw,26px);font-weight:800;color:var(--y);text-shadow:0 0 12px #ffd60a88;margin:4px 0}
+.panel{background:linear-gradient(160deg,#141b45,#0c1130);border:1px solid #ffffff2a;border-radius:20px;padding:clamp(14px,3vw,28px);box-shadow:0 0 30px #00d4ff22;animation:in .5s}
+@keyframes in{from{opacity:0;transform:translateY(16px)}}
+.center{text-align:center}
+.big{font-size:clamp(22px,4vw,40px);font-weight:900}
+.btn{background:linear-gradient(90deg,var(--b),var(--p));border:0;border-radius:14px;padding:12px 28px;font-size:clamp(17px,2.4vw,24px);font-weight:800;box-shadow:0 0 20px #a855f799;transition:transform .15s}
+.btn:hover{transform:scale(1.05)}
+.btn.y{background:linear-gradient(90deg,var(--y),#ff9f0a);color:#1a1200}
+.btn.s{padding:8px 16px;font-size:16px;margin:4px}
+.chips{display:flex;gap:10px;justify-content:center;margin:12px 0}
+.chip{border:2px solid #ffffff44;background:#1a2150;border-radius:12px;padding:6px 18px;font-size:20px;font-weight:800}
+.chip.on{border-color:var(--y);color:var(--y);box-shadow:0 0 14px #ffd60a88}
+.ni{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.ni input{width:100%;padding:10px;border-radius:10px;border:2px solid var(--c);background:#0b1030;color:var(--tx);font:inherit;font-size:18px}
+.qh{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px}
+.who{font-weight:800;font-size:clamp(14px,2vw,20px);color:var(--c)}
+.who small{display:block;color:var(--mut);font-weight:400}
+.tm{display:flex;align-items:center;gap:8px;min-width:150px;flex:1;max-width:320px}
+.tm span{flex:1;height:14px;background:#1a2150;border-radius:8px;overflow:hidden}
+.tm i{display:block;height:100%;width:100%;background:var(--g);transition:width .1s linear,background .3s}
+.tm.low i{background:var(--r)}
+.tm b{font-size:28px;min-width:40px;font-variant-numeric:tabular-nums}
+.tm.low b{color:var(--r);animation:bl .5s infinite}
+@keyframes bl{50%{opacity:.4}}
+.q{font-size:clamp(20px,3.4vw,34px);font-weight:800;margin:6px 0 12px;line-height:1.35}
+.tbl{border-collapse:collapse;margin:6px auto 12px}
+.tbl td,.tbl th{border:1px solid #ffffff44;padding:6px 14px;font-size:clamp(14px,2vw,20px);text-align:center}
+.tbl th{background:#1a2150;color:var(--y)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.opt{background:#10173f;border:2px solid #ffffff33;border-radius:16px;padding:14px;font-size:clamp(18px,2.8vw,28px);font-weight:700;text-align:left;transition:transform .15s,border-color .2s}
+.opt:hover:not(:disabled){transform:translateY(-3px);border-color:var(--b);box-shadow:0 0 18px #00d4ff77}
+.opt:disabled{cursor:default}
+.opt .l{display:inline-block;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%;background:var(--p);margin-right:10px;font-size:20px}
+.opt.ok{border-color:var(--g);background:#0d3a2a;box-shadow:0 0 24px var(--g);animation:pop2 .6s}
+.opt.bad{border-color:var(--r);background:#3a1020;opacity:.55;animation:sh .4s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes pop2{40%{transform:scale(1.06)}}
+.hs{width:100%;display:block}
+.cht{max-width:520px;margin:0 auto 10px}
+.g2 .opt{padding:8px 12px;text-align:center}
+#fb{margin-top:14px;min-height:20px}
+.fb{border-radius:14px;padding:12px 16px;font-size:clamp(16px,2.3vw,22px);animation:in .4s}
+.fb.h{background:#3a2d00;border:1px solid var(--y)}
+.fb.g{background:#0d3a2a;border:1px solid var(--g)}
+.fb.r{background:#2a1a40;border:1px solid var(--p)}
+.cf{position:fixed;top:-20px;width:10px;height:16px;z-index:50;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.rank{display:flex;align-items:center;gap:12px;margin:8px 0;font-size:clamp(18px,3vw,30px)}
+.rank .bar{height:30px;border-radius:8px;background:var(--c);box-shadow:0 0 14px var(--c);transition:width 1.5s;width:0}
+.rank .nm{min-width:150px;font-weight:800;color:var(--c)}
+.trophy{font-size:clamp(70px,14vw,140px);animation:fl 2s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-14px) rotate(4deg)}}
+.hist-svg{position:absolute;width:0;height:0}
+</style>
+</head>
+<body>
+<svg class="hist-svg"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00d4ff"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg>
+<div id="app">
+ <div id="hud"><span class="st" id="st"></span><div class="pw"><i id="pw"></i></div><button class="mute" id="mu" aria-label="เปิดปิดเสียง">🔊</button></div>
+ <div id="board"></div>
+ <div id="mc"></div>
+ <div id="main"></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),C=['#00d4ff','#a855f7','#ffd60a','#22ff99'];
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+/* ---------- เสียง ---------- */
+let ac,mute=false;
+function tone(f,d,t,v,w){if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+(w||0);o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||.15,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g);g.connect(ac.destination);o.start(s);o.stop(s+d)}catch(e){}}
+const sfx={ok:()=>[523,659,784].forEach((f,i)=>tone(f,.2,'triangle',.18,i*.09)),bad:()=>{tone(220,.25,'sawtooth',.08);tone(165,.3,'sawtooth',.08,.15)},tick:()=>tone(880,.06,'square',.05),
+pass:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.2,i*.1)),win:()=>[523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>tone(f,.3,'triangle',.2,i*.13)),go:()=>[392,523].forEach((f,i)=>tone(f,.2,'square',.07,i*.1))};
+$('#mu').onclick=()=>{mute=!mute;$('#mu').textContent=mute?'🔇':'🔊'};
+function confetti(n){for(let i=0;i<n;i++){const e=document.createElement('i');e.className='cf';e.style.left=Math.random()*100+'vw';e.style.background=[...C,'#ff4d6d'][i%5];e.style.animationDuration=(2+Math.random()*2.5)+'s';e.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),5500)}}
+/* ---------- กราฟฮิสโทแกรม (SVG) ---------- */
+function hist(lab,d,ym,big){const W=big?420:220,H=big?250:140,l=big?34:22,b=big?34:26,t=big?16:14,pw=W-l-8,ph=H-b-t,bw=pw/d.length,f=big?12:8.5;
+let s=`<svg viewBox="0 0 ${W} ${H}" class="hs" role="img" aria-label="ฮิสโทแกรม">`;
+for(let v=0;v<=ym;v+=2){const y=t+ph-ph*v/ym;s+=`<line x1="${l}" x2="${W-8}" y1="${y}" y2="${y}" stroke="#ffffff22"/><text x="${l-5}" y="${y+3}" text-anchor="end" fill="#9fb0ff" font-size="${f}">${v}</text>`}
+d.forEach((v,i)=>{const h=ph*v/ym,x=l+i*bw,y=t+ph-h;s+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="url(#g)" stroke="#070a1f" stroke-width="1.5"/><text x="${x+bw/2}" y="${y-3}" text-anchor="middle" fill="#ffd60a" font-size="${f+1}" font-weight="700">${v}</text><text x="${x+bw/2}" y="${H-b+f+4}" text-anchor="middle" fill="#cfd8ff" font-size="${f}">${lab[i]}</text>`});
+return s+`<line x1="${l}" y1="${t}" x2="${l}" y2="${t+ph}" stroke="#fff6"/><line x1="${l}" y1="${t+ph}" x2="${W-8}" y2="${t+ph}" stroke="#fff6"/></svg>`}
+/* ---------- คลังคำถาม (ตัวเลือกแรก = คำตอบที่ถูก แล้วระบบสลับให้เอง) ---------- */
+const S1=[
+{q:'ฮิสโทแกรมเหมาะกับข้อมูลแบบใดที่สุด?',o:['ข้อมูลตัวเลขที่แจกแจงความถี่เป็นอันตรภาคชั้น','ข้อมูลเชิงคุณภาพ เช่น สีที่ชอบ','ข้อมูลที่มีเพียงค่าเดียว','ข้อมูลที่ไม่มีค่าตัวเลขเลย'],h:'ฮิสโทแกรมมักใช้กับข้อมูลที่เป็นตัวเลข เช่น คะแนน ส่วนสูง แล้วจัดเป็นช่วง ๆ',e:'ฮิสโทแกรมใช้แสดงความถี่ของข้อมูลตัวเลขที่จัดเป็นอันตรภาคชั้น'},
+{q:'อันตรภาคชั้น 11–20 มีความกว้างเท่าใด?',o:['10','9','11','20'],h:'ขอบล่าง 10.5 ขอบบน 20.5 ลองนำมาลบกันดู',e:'ความกว้าง = ขอบบน − ขอบล่าง = 20.5 − 10.5 = 10'},
+{q:'ขอบล่างและขอบบนของชั้น 21–30 คือข้อใด?',o:['20.5 และ 30.5','20 และ 30','21.5 และ 29.5','21 และ 31'],h:'ขอบชั้น = ค่าต่ำสุดลบ 0.5 และค่าสูงสุดบวก 0.5',e:'ขอบล่าง = 21 − 0.5 = 20.5 และขอบบน = 30 + 0.5 = 30.5'},
+{q:'จุดกึ่งกลางของอันตรภาคชั้น 41–50 คือเท่าใด?',o:['45.5','45','46','50'],h:'จุดกึ่งกลาง = (ค่าต่ำสุด + ค่าสูงสุด) ÷ 2 ลองคิด (41 + 50) ÷ 2',e:'(41 + 50) ÷ 2 = 91 ÷ 2 = 45.5'},
+{q:'ตารางแจกแจงความถี่มีความถี่ของแต่ละชั้นเป็น 3, 5, 8, 4 มีข้อมูลทั้งหมดกี่ตัว?',o:['20','15','18','25'],h:'นำความถี่ทุกชั้นมาบวกกัน',e:'3 + 5 + 8 + 4 = 20 ตัว'}];
+const S2=[
+{t:'จำนวนนักเรียนจำแนกตามช่วงคะแนนเก็บ',lab:['1–10','11–20','21–30','31–40'],d:[2,5,8,3],w:[[5,2,8,3],[2,5,3,8]],h:'ดูความถี่ของชั้นแรกก่อน แท่งแรกต้องสูง 2 แล้วค่อยเช็กแท่งอื่น'},
+{t:'จำนวนนักเรียนจำแนกตามคะแนนสอบ',lab:['41–50','51–60','61–70','71–80','81–90'],d:[1,4,6,4,1],w:[[4,1,6,1,4],[1,3,6,4,2]],h:'ชั้น 51–60 ต้องมีความถี่ 4 และชั้น 81–90 มีเพียง 1'},
+{t:'จำนวนนักเรียนจำแนกตามเวลาเล่นเกมต่อสัปดาห์ (ชั่วโมง)',lab:['1–5','6–10','11–15','16–20'],d:[7,5,2,1],w:[[1,2,5,7],[7,2,5,1]],h:'เวลาเล่นน้อยมีคนมาก ลองดูว่ากราฟไหนไล่จากสูงไปต่ำตามตาราง'}];
+const S3L=['41–50','51–60','61–70','71–80','81–90'],S3D=[2,6,10,8,4];
+const S3=[
+{q:'ชั้นคะแนนใดมีความถี่สูงที่สุด?',o:['61–70','51–60','71–80','81–90'],h:'มองหาแท่งที่สูงที่สุดในกราฟ',e:'แท่ง 61–70 สูงที่สุด ความถี่ 10'},
+{q:'มีนักเรียนทั้งหมดกี่คน?',o:['30','25','28','10'],h:'บวกความถี่ทุกแท่ง: 2 + 6 + 10 + 8 + 4',e:'2 + 6 + 10 + 8 + 4 = 30 คน'},
+{q:'นักเรียนที่ได้คะแนนตั้งแต่ 61 ขึ้นไปมีกี่คน?',o:['22','18','12','28'],h:'นับแท่ง 61–70, 71–80 และ 81–90 รวมกัน',e:'10 + 8 + 4 = 22 คน'},
+{q:'ชั้น 51–60 มีนักเรียนมากกว่าชั้น 81–90 อยู่กี่คน?',o:['2','4','6','10'],h:'นำความถี่ชั้น 51–60 ลบความถี่ชั้น 81–90',e:'6 − 4 = 2 คน'}];
+const MIS=[
+{t:'ภารกิจพิเศษ: ฮิสโทแกรม vs แผนภูมิแท่ง',d:'ทุกทีมปรึกษา 20 วินาที แล้วบอกว่าฮิสโทแกรมต่างจากแผนภูมิแท่งตรงไหน (ใบ้: ดูที่ระยะห่างระหว่างแท่ง) ทีมที่ตอบได้ก่อนและถูกต้อง รับ +100!'},
+{t:'ภารกิจพิเศษ: วาดกราฟมือเปล่า',d:'ทุกคนในทีมช่วยกันวาดฮิสโทแกรมจากความถี่ 2, 4, 3 บนกระดาษภายใน 30 วินาที (แท่งต้องติดกัน!) ทีมที่วาดถูกและเร็ว รับ +100!'}];
+/* ---------- สถานะเกม ---------- */
+let nT=3,teams=[],steps=[],si=0,qn=0,done=0,TOTAL=12,cur=null,tmr=null,rem=0,lim=0,lastS=0,f10=0,f5=0,locked=true,att=0,ops=[],streak={};
+const $m=$('#main');
+function mc(t){$('#mc').textContent=t}
+function setup(){
+ $m.innerHTML=`<div class="panel center"><h1 class="logo">HISTOGRAM SHOWDOWN</h1><div class="big" style="color:var(--y)">ศึกพิชิตกราฟระทึก!</div><p class="sub">คณิตศาสตร์พื้นฐาน ม.6 · เรื่องการนำเสนอข้อมูลด้วยฮิสโทแกรม · ใช้เวลาประมาณ 10 นาที</p>
+ <p>เลือกจำนวนทีม (ทีมละ 4 คน)</p><div class="chips" id="ch"></div><div class="ni" id="ni"></div>
+ <p class="sub">🎤 ทีมผลัดกันตอบ ส่วนผู้เล่นในทีมหมุนเวียนเป็นตัวแทน เพื่อนร่วมทีมช่วยกันคิดได้ทุกข้อ!</p>
+ <button class="btn y" id="go">เริ่มการแข่งขัน!</button></div>`;
+ const draw=()=>{$('#ch').innerHTML=[2,3,4].map(n=>`<button class="chip ${n==nT?'on':''}" data-n="${n}">${n} ทีม</button>`).join('');
+  const old=[...document.querySelectorAll('.ni input')].map(i=>i.value);
+  $('#ni').innerHTML=Array.from({length:nT},(_,i)=>`<input style="--c:${C[i]}" maxlength="16" value="${esc(old[i]||['ทีมสายฟ้า ⚡','ทีมจักรวาล 🌌','ทีมนีออน 🔥','ทีมดาวเด่น ⭐'][i])}" aria-label="ชื่อทีม ${i+1}">`).join('');
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{nT=+b.dataset.n;draw()})};
+ draw();
+ $('#go').onclick=()=>{teams=[...document.querySelectorAll('.ni input')].map((i,k)=>({n:i.value.trim()||'ทีม '+(k+1),s:0,c:C[k],st:0}));sfx.go();start()};
+}
+function start(){
+ si=0;qn=0;done=0;
+ steps=[{k:'intro',n:1},...S1.map(x=>({k:'q',st:1,base:100,tl:25,...x})),{k:'mis',n:1},
+ {k:'intro',n:2},...S2.map(x=>({k:'q',st:2,base:150,tl:35,chart:1,...x})),{k:'mis',n:2},
+ {k:'intro',n:3},...S3.map(x=>({k:'q',st:3,base:200,tl:15,big:1,...x})),{k:'end'}];
+ $('#hud').style.display='flex';$('#board').style.display='flex';renderBoard();next();
+}
+function renderBoard(a,pop){$('#board').innerHTML=teams.map((t,i)=>`<div class="tc ${i===a?'act':''} ${i===pop?'pop':''}" style="--c:${t.c}"><div class="n">${esc(t.n)}</div><div class="s">${t.s}</div><div class="n">${t.st>=2?'🔥 คอมโบ x'+t.st:'&nbsp;'}</div></div>`).join('');
+ $('#pw').style.width=(done/TOTAL*100)+'%'}
+function next(){clearInterval(tmr);const s=steps[si++];cur=s;
+ if(s.k==='intro')intro(s);else if(s.k==='q')ask(s);else if(s.k==='mis')mission(s);else end()}
+const SN={1:['ด่านที่ 1 · ล่ารหัสความถี่','🔍','ตอบคำถามสั้น ๆ ข้อละ 100 คะแนน + โบนัสความเร็วสูงสุด 50 คะแนน ตอบถูกติดกัน 3 ข้อ รับโบนัสคอมโบ +50!'],
+2:['ด่านที่ 2 · กราฟปริศนา','🧩','ดูตารางความถี่ แล้วเลือกฮิสโทแกรมที่ตรงกับข้อมูล ข้อละ 150 คะแนน! ตรวจทีละแท่งจะไม่พลาด'],
+3:['ด่านที่ 3 · นาทีทองพิชิตแชมป์','⚡','วิเคราะห์กราฟแข่งกับเวลา! คะแนนคูณสองทุกข้อ ข้อละ 200 คะแนน + โบนัสความเร็ว ใครจะคว้าแชมป์!']};
+function intro(s){const d=SN[s.n];$('#st').textContent=d[0];mc('ทีมไหนจะคว้าแชมป์!');
+ $m.innerHTML=`<div class="panel center"><div class="trophy">${d[1]}</div><h2 class="big">${d[0]}</h2><p class="sub">${d[2]}</p><p class="sub">💡 ตอบผิดไม่เป็นไร มีคำใบ้ให้ และลองใหม่ได้ (ได้คะแนนครึ่งหนึ่ง)</p><button class="btn" id="b">เริ่มด่าน!</button></div>`;
+ sfx.go();$('#b').onclick=()=>{sfx.go();next()}}
+function ask(s){const T=teams[qn%nT],tc=qn%nT,seat=Math.floor(qn/nT)%4+1;qn++;att=0;locked=false;
+ $('#st').textContent=SN[s.st][0].split(' · ')[0]+' · ข้อ '+qn+'/'+TOTAL;
+ let top='',body;
+ if(s.chart){ops=sh([{d:s.d,c:1},...s.w.map(d=>({d,c:0}))]);
+  top=`<table class="tbl"><tr><th>ช่วง</th>${s.lab.map(l=>`<td>${l}</td>`).join('')}</tr><tr><th>ความถี่</th>${s.d.map(v=>`<td>${v}</td>`).join('')}</tr></table>`;
+  const ym=Math.ceil((Math.max(...s.d,...s.w.flat())+1)/2)*2;
+  body=`<div class="opts g2">${ops.map((o,i)=>`<button class="opt" data-i="${i}"><span class="l">${'ABC'[i]}</span>${hist(s.lab,o.d,ym,0)}</button>`).join('')}</div>`;
+  var q='เลือกฮิสโทแกรมที่ตรงกับข้อมูล: '+s.t}
+ else{ops=sh(s.o.map((t,i)=>({t,c:i===0})));
+  if(s.big)top=`<div class="cht">${hist(S3L,S3D,10,1)}<div class="sub center">คะแนนสอบของนักเรียน (ชั้นละ 10 คะแนน)</div></div>`;
+  body=`<div class="opts">${ops.map((o,i)=>`<button class="opt" data-i="${i}"><span class="l">${'ABCD'[i]}</span>${esc(o.t)}</button>`).join('')}</div>`;var q=s.q}
+ $m.innerHTML=`<div class="panel"><div class="qh"><div class="who" style="--c:${T.c}">🎤 ${esc(T.n)} เป็นผู้ตอบ<small>ตัวแทน: ผู้เล่นคนที่ ${seat} · เพื่อนช่วยกันคิดได้!</small></div><div class="tm" id="tm"><span><i id="tb"></i></span><b id="tt"></b></div></div><div class="q">${esc(q)}</div>${top}${body}<div id="fb"></div></div>`;
+ renderBoard(tc);mc(['เตรียมพร้อม!','ใครจะตอบถูก!','ลุยเลยทีมนี้!'][qn%3]);
+ s.team=tc;
+ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+ lim=rem=s.tl;lastS=0;f10=f5=0;upd();tmr=setInterval(tick,100)}
+function upd(){const t=$('#tt');if(!t)return;t.textContent=Math.ceil(rem);$('#tb').style.width=(rem/lim*100)+'%';$('#tm').classList.toggle('low',rem<=5)}
+function tick(){rem-=.1;if(rem<=0){rem=0;clearInterval(tmr);upd();wrong(null,1);return}
+ const r=Math.ceil(rem);if(r!==lastS){lastS=r;if(r<=5)sfx.tick()}
+ if(rem<=10&&!f10&&lim>=15){f10=1;mc('เหลือเวลา 10 วินาที!')}
+ if(rem<=5&&!f5){f5=1;mc('5 วินาทีสุดท้าย! ลุยเลย!')}upd()}
+function pick(i,b){if(locked)return;if(ops[i].c)right(b);else wrong(b)}
+function addScore(p){const t=teams[cur.team];t.s+=p;renderBoard(cur.team,cur.team)}
+function right(b){locked=true;clearInterval(tmr);const T=teams[cur.team];let p=cur.base*(att?.5:1),bonus=att?0:Math.round(rem/lim*50),txt='';
+ if(!att){T.st++;if(T.st%3===0){bonus+=50;txt=' 🔥 โบนัสคอมโบ +50!'}}
+ p+=bonus;b.classList.add('ok');sfx.ok();confetti(18);done++;addScore(p);
+ mc(['เยี่ยมมาก!','ถูกต้อง! สุดยอด!','โอ้โห แม่นมาก!','ทีมนี้มาแรง!'][Math.random()*4|0]);
+ fin(`<div class="fb g">✅ ถูกต้อง! +${p} คะแนน${bonus&&!att?' (รวมโบนัส '+bonus+')':''}${txt}<br>${esc(cur.e||'กราฟนี้ตรงกับตารางความถี่ทุกแท่ง')}</div>`)}
+function wrong(b,to){const T=teams[cur.team];if(att){locked=true;b&&b.classList.add('bad');document.querySelectorAll('.opt').forEach((x,i)=>{x.disabled=true;if(ops[i].c)x.classList.add('ok')});done++;sfx.bad();mc('ไม่เป็นไร! เรียนรู้ไปด้วยกัน');
+  fin(`<div class="fb r">📘 คำตอบที่ถูกคือข้อที่ไฮไลต์สีเขียว<br>${esc(cur.e||'ดูตารางความถี่ทีละแท่งแล้วเทียบกับกราฟ')}</div>`);return}
+ att=1;T.st=0;clearInterval(tmr);sfx.bad();if(b){b.classList.add('bad');b.disabled=true}
+ renderBoard(cur.team);mc(to?'หมดเวลา! ไม่เป็นไร ลองอีกครั้งแบบไม่จับเวลา':'ยังไม่ใช่! ใบ้ให้แล้ว ลองใหม่ได้เลย');
+ $('#fb').innerHTML=`<div class="fb h">💡 คำใบ้: ${esc(cur.h)}<br><small>ตอบถูกในรอบนี้ได้ ${cur.base/2} คะแนน</small></div>`;
+ const tm=$('#tm');if(tm){tm.classList.remove('low');$('#tt').textContent='∞'}}
+function fin(h){const last=steps[si].k!=='q';$('#fb').innerHTML=h+`<div class="center" style="margin-top:12px"><button class="btn y" id="nx">${last?'จบด่าน ไปต่อ ➜':'ข้อต่อไป ➜'}</button></div>`;
+ document.querySelectorAll('.opt').forEach(x=>x.disabled=true);$('#nx').onclick=next;$('#pw').style.width=(done/TOTAL*100)+'%'}
+function mission(s){const m=MIS[s.n-1];sfx.pass();confetti(70);$('#st').textContent='🎉 ผ่านด่านที่ '+s.n+'!';mc('ผ่านด่านแล้ว! โบนัสกำลังมา!');renderBoard();
+ $m.innerHTML=`<div class="panel center"><div class="trophy">🎉</div><h2 class="big" style="color:var(--g)">ผ่านด่านที่ ${s.n}!</h2><h3 class="big" style="color:var(--y);margin-top:10px">${m.t}</h3><p class="sub">${m.d}</p><p class="sub">ครูเลือกทีมที่ทำสำเร็จ:</p><div id="mt">${teams.map((t,i)=>`<button class="btn s" style="background:${t.c};color:#10142e" data-i="${i}">${esc(t.n)} +100</button>`).join('')}<button class="btn s" style="background:#33396b" id="sk">ไม่มีทีมได้</button></div><p><button class="btn" id="b">ไปด่านต่อไป ➜</button></p></div>`;
+ document.querySelectorAll('#mt [data-i]').forEach(b=>b.onclick=()=>{const t=teams[+b.dataset.i];t.s+=100;sfx.ok();confetti(25);mc('โบนัส +100 ให้ '+t.n+'!');renderBoard(+b.dataset.i,+b.dataset.i);$('#mt').remove()});
+ $('#sk').onclick=()=>$('#mt').remove();$('#b').onclick=next}
+function end(){const r=teams.map(t=>({...t})).sort((a,b)=>b.s-a.s),mx=Math.max(1,r[0].s),w=r.filter(t=>t.s===r[0].s);
+ $('#st').textContent='🏆 ประกาศผล';$('#pw').style.width='100%';sfx.win();confetti(160);setTimeout(()=>confetti(120),1500);mc('ทีมไหนจะคว้าแชมป์! ... ประกาศผล!');renderBoard();
+ $m.innerHTML=`<div class="panel center"><div class="trophy">🏆</div><div class="sub">${w.length>1?'ผลเสมอ! สองทีมเก่งพอกัน':'ขอแสดงความยินดีกับแชมป์!'}</div><h1 class="logo" style="font-size:clamp(30px,7vw,72px)">${w.map(t=>esc(t.n)).join(' & ')}</h1><div class="big" style="color:var(--y)">${r[0].s} คะแนน</div>
+ <div style="margin:18px auto;max-width:800px;text-align:left">${r.map((t,i)=>`<div class="rank" style="--c:${t.c}"><span>${['🥇','🥈','🥉','4️⃣'][i]}</span><span class="nm">${esc(t.n)}</span><div class="bar" data-w="${t.s/mx*100}"></div><b>${t.s}</b></div>`).join('')}</div>
+ <p class="sub">ทุกทีมเก่งมาก! ฮิสโทแกรมคือการ “เห็นข้อมูลเป็นภาพ” ที่เราช่วยกันพิชิตแล้ว 🎉</p><button class="btn y" id="b">เล่นอีกครั้ง</button></div>`;
+ setTimeout(()=>document.querySelectorAll('.bar').forEach(b=>b.style.width=Math.max(4,b.dataset.w*.55)+'%'),100);$('#b').onclick=()=>location.reload()}
+setup();
+</script>
+</body>
+</html>
